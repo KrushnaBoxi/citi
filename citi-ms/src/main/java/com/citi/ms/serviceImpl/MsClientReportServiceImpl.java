@@ -5,6 +5,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -20,6 +21,7 @@ import com.citi.ms.dao.ClientReportDAO;
 import com.citi.ms.model.ClientReport;
 import com.citi.ms.model.CustomerRequest;
 import com.citi.ms.model.CustomerResponse;
+import com.citi.ms.model.ServerCustomerRequest;
 import com.citi.ms.service.MsClientReportService;
 import com.citi.ms.utils.CitiCommonMethods;
 
@@ -48,8 +50,16 @@ public class MsClientReportServiceImpl implements MsClientReportService {
 	
 	public CustomerResponse getClientReport(CustomerRequest customerRequest){
 		String dbMethodName = new String();
+		ServerCustomerRequest scr = new ServerCustomerRequest();
+		java.sql.Date fromDate = citiCommonMethods.getStringToDate(customerRequest.getFromDate());
+		java.sql.Date toDate = citiCommonMethods.getStringToDate(customerRequest.getToDate());
+		scr.setFromDate(fromDate);
+		scr.setToDate(toDate);
+		scr.setProgram(customerRequest.getProgramType());
+		scr.setInvestorName(customerRequest.getInvestorName());
+		//scr.setToDate(toDate);
 		
-		TreeMap<String, Object> queryRequestMap = getQueryMap(customerRequest);
+		TreeMap<String, Object> queryRequestMap = getQueryMap(scr);
 		if(customerRequest == null || customerRequest.getFromDate()== null || customerRequest.getToDate() == null ){
 			return citiCommonMethods.getErrorResponse("Input parameter missing");
 		}else{
@@ -57,32 +67,32 @@ public class MsClientReportServiceImpl implements MsClientReportService {
 		}
 		List<ClientReport> clientReportList = null;
 		//log.debug("db method name: "+dbMethodName);
-		switch (dbMethodName) {
+		/*switch (dbMethodName) {
         case "findByToDateAndFromDate":
         	//clientReportList = clientReportDao.findByToDateBeforeAndFromDateAfter(customerRequest.getToDate(), customerRequest.getFromDate());
         	clientReportList = clientReportDao.findByToDateLessThanEqualAndFromDateGreaterThanEqual(customerRequest.getToDate(), customerRequest.getFromDate());
         	break;
         case "findByToDateAndFromDateAndProgram":
-        	clientReportList = clientReportDao.findByToDateLessThanEqualAndFromDateGreaterThanEqualAndProgram(customerRequest.getToDate(), customerRequest.getFromDate(), customerRequest.getProgram());
+        	clientReportList = clientReportDao.findByToDateLessThanEqualAndFromDateGreaterThanEqualAndProgram(customerRequest.getToDate(), customerRequest.getFromDate(), customerRequest.getProgramType());
             break;
         case "findByToDateAndFromDateAndInvestorName":
         	clientReportList = clientReportDao.findByToDateLessThanEqualAndFromDateGreaterThanEqualAndInvestorName(customerRequest.getToDate(), customerRequest.getFromDate(), customerRequest.getInvestorName());
             break;
         case "findAll":
-        	clientReportList = clientReportDao.findByToDateLessThanEqualAndFromDateGreaterThanEqualAndInvestorNameAndProgram(customerRequest.getToDate(), customerRequest.getFromDate(), customerRequest.getInvestorName(), customerRequest.getProgram());
+        	clientReportList = clientReportDao.findByToDateLessThanEqualAndFromDateGreaterThanEqualAndInvestorNameAndProgram(customerRequest.getToDate(), customerRequest.getFromDate(), customerRequest.getInvestorName(), customerRequest.getProgramType());
             break;
         default:
         	clientReportList = clientReportDao.findAll();
             break;
-        }
+        }*/
 		return  citiCommonMethods.getSuccessResponse(clientReportList);
 	}
 	@Override
 	public List<String> getProgramList(String fieldName) {
-		CustomerRequest cs = new CustomerRequest();
-		cs.setProgram("abc");
-		cs.setMaxTenor(10);
-		System.out.println("query output: "+clientReportDaoImpl.executeDynamicQuery(getQueryMap(cs)).size());
+		/*CustomerRequest cs = new CustomerRequest();
+		cs.setProgramType("abc");
+		cs.setMaxTenor(10);*/
+		//System.out.println("query output: "+clientReportDaoImpl.executeDynamicQuery(getQueryMap(cs)).size());
 		 final String collectionName = "clientReport";
 		return clientReportDaoImpl.findByDistinctFieldValue(collectionName, fieldName);
 		// distinctProgram.stream().map(ClientReport::getProgram).distinct().collect(Collectors.toList());
@@ -96,8 +106,8 @@ public class MsClientReportServiceImpl implements MsClientReportService {
 			try {
 				if(field.getType().equals(int.class) && (int) field.get(customerRequest) != 0 ) {
 					queryRequestMap.put(field.getName(), field.get(customerRequest));
-				} else if(field.get(customerRequest)!=null && !field.getType().equals(int.class) ) {
-					System.out.println(field.getType());
+				} else if(field.get(customerRequest)!=null && field.get(customerRequest)!="" && !field.getType().equals(int.class) ) {
+					//System.out.println(field.getType());
 					queryRequestMap.put(field.getName(), field.get(customerRequest));
 				}
 				
@@ -130,17 +140,17 @@ public class MsClientReportServiceImpl implements MsClientReportService {
 
 		}
 	}*/
-		System.out.println("map    >>>>>>" +queryRequestMap);
+		log.debug("Query param" +queryRequestMap);
 		return queryRequestMap;
 	}
 	
 
 	private String validateClientRequest(CustomerRequest customerRequest) {
-		if(customerRequest.getInvestorName()== null && customerRequest.getProgram()== null ){
+		if(customerRequest.getInvestorName()== null && customerRequest.getProgramType()== null ){
 			return new String("findByToDateAndFromDate");
 		} else if(customerRequest.getInvestorName()== null){
 			return new String("findByToDateAndFromDateAndProgram");
-		}else if(customerRequest.getProgram() == null){
+		}else if(customerRequest.getProgramType() == null){
 			return new String("findByToDateAndFromDateAndInvestorName");
 		}else{
 			return new String("findAll");
@@ -154,7 +164,14 @@ public class MsClientReportServiceImpl implements MsClientReportService {
 		if(customerRequest == null || customerRequest.getFromDate()== null || customerRequest.getToDate() == null ){
 			return citiCommonMethods.getErrorResponse("Mandatory input parameter missing");
 		}
-		TreeMap<String, Object> queryRequestMap = getQueryMap(customerRequest);
+		ServerCustomerRequest scr = new ServerCustomerRequest();
+		java.sql.Date fromDate = citiCommonMethods.getStringToDate(customerRequest.getFromDate());
+		java.sql.Date toDate = citiCommonMethods.getStringToDate(customerRequest.getToDate());
+		scr.setFromDate(fromDate);
+		scr.setToDate(toDate);
+		scr.setProgram(customerRequest.getProgramType());
+		scr.setInvestorName(customerRequest.getInvestorName());
+		TreeMap<String, Object> queryRequestMap = getQueryMap(scr);
 		List<ClientReport> clientReportList = null;
 		clientReportList = clientReportDaoImpl.executeDynamicQuery(queryRequestMap);
 		return  citiCommonMethods.getSuccessResponse(clientReportList);

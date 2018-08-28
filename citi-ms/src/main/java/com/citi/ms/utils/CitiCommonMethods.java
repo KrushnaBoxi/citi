@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -46,6 +47,28 @@ public class CitiCommonMethods {
 		return date;
 	}
 
+	public java.sql.Date getStringToDate(String inputDate) {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD"); 
+		java.sql.Date sqlDate = java.sql.Date.valueOf(inputDate);
+		Date utilDate;
+		
+		
+		
+		/*try {
+			 sqlDate = java.sql.Date.valueOf(inputDate);
+			//utilDate = formatter.parse(inputDate);
+			utilDate = (Date)formatter.parse(inputDate);
+			System.out.println("utilDate "+utilDate);
+			sqlDate = new java.sql.Date(utilDate.getTime());
+			System.out.println("sqlDate "+ sqlDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		/*SimpleDateFormat newFormat = new SimpleDateFormat("MM-dd-yyyy");
+		String finalString = newFormat.format(date);*/
+		return sqlDate;
+	}
 
 	public CustomerResponse getSuccessResponse(List<ClientReport> clientReport) {
 		return CustomerResponse.builder().clientReport(clientReport).responseCode(200).responseMessage("Success").build();

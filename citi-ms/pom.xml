@@ -5,7 +5,7 @@
 
 	<groupId>com.citi.ms</groupId>
 	<artifactId>citi-ms</artifactId>
-	<version>0.0.2-Dev</version>
+	<version>0.0.2-Angular</version>
 	<packaging>jar</packaging>
 
 	<name>citi-ms</name>
