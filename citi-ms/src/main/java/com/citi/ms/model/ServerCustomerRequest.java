@@ -18,6 +18,7 @@ public class ServerCustomerRequest {
 	private String investorName;
 	private String program;
 	private int maxTenor;
+	private String supplierExcluded;
 	
 	
 

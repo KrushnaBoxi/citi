@@ -19,6 +19,7 @@ public class CustomerRequest {
 	private String investorName;
 	private String programType;
 	private int maxTenor;
+	private String supplierExcluded;
 	
 
 }

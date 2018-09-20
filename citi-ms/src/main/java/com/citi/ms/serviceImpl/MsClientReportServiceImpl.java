@@ -171,6 +171,7 @@ public class MsClientReportServiceImpl implements MsClientReportService {
 		scr.setToDate(toDate);
 		scr.setProgram(customerRequest.getProgramType());
 		scr.setInvestorName(customerRequest.getInvestorName());
+		scr.setSupplierExcluded(customerRequest.getSupplierExcluded());
 		TreeMap<String, Object> queryRequestMap = getQueryMap(scr);
 		List<ClientReport> clientReportList = null;
 		clientReportList = clientReportDaoImpl.executeDynamicQuery(queryRequestMap);
